@@ -29,8 +29,8 @@ function post_summary(out::Array{State_lm,1}, alpha=.05)
     @printf "\t\t%.4f\t%.4f\t%s\n" mean_beta[k] std_beta[k] zeroInCI[k]
   end
 
-  post_sig2 = map(o -> o.sig2, out)
-  @printf "σ: %.4f ± %.4f\n"  mean(post_sig2)  std(post_sig2)
+  post_sig = map(o -> sqrt(o.sig2), out)
+  @printf "σ: %.4f ± %.4f\n"  mean(post_sig)  std(post_sig)
 
   # print out DIC
 end
