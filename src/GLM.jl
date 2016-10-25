@@ -20,7 +20,7 @@ function post_summary(out::Array{State_lm,1}, alpha=.05)
   const (N,P) = size(post_beta)
   zeroInCI = Array{String,1}(P)
   for p in 1:P
-    q = quantile(post_beta[:,p],[.025,.975])
+    q = quantile(post_beta[:,p],[alpha/2,1-alpha/2])
     zeroInCI[p] = q[1] <= 0 <= q[2] ? "" : "*"
   end
 
