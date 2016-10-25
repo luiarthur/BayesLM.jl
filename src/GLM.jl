@@ -13,7 +13,7 @@ immutable State_lm
 end
 
 
-function post_summary(out::Array{State_lm,1}, alpha=.05)
+function post_summary(out::Array{State_lm,1}; alpha=.05)
   post_beta= hcat(map(o -> o.b, out)...)'
   mean_beta = mean(post_beta,1)
   std_beta = std(post_beta,1)
@@ -68,10 +68,10 @@ include("GLM.jl")
 using GLM, RCall
 n = 100
 X = randn(n,1)
-b = [2,3]
+b = [0,3]
 y = [ones(n) X] * b + randn(n)
 model = lm(y,X);
-post_summary(model)
+post_summary(model,alpha=0)
 
 @rput y X;
 R"summary(lm(y~X))"
