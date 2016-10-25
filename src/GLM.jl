@@ -71,7 +71,7 @@ X = randn(n,1)
 b = [0,3]
 y = [ones(n) X] * b + randn(n)
 model = lm(y,X);
-post_summary(model,alpha=0)
+post_summary(model,alpha=.05)
 
 @rput y X;
 R"summary(lm(y~X))"
