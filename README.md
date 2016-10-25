@@ -10,7 +10,7 @@ My Bayesian implementations of typical stats functions from R, written in julia.
       - [ ] binomial	(link = logit)
       - [ ] Gaussian	(link = identity)
       - [ ] Gamma	(link = inverse)
-      - [ ] inverse gaussian	(link = $1/mu^2$)
+      - [ ] inverse gaussian	(link = 1/mu^2)
       - [ ] poisson	(link = log)
       - [ ] quasi	(link = identity, variance = constant)
       - [ ] quasi-binomial	(link = logit)
@@ -25,5 +25,5 @@ My Bayesian implementations of typical stats functions from R, written in julia.
       - [ ] Posterior 95% CI?
       - [ ] 5 quantiles of residuals
       - [ ] DIC
-      - [ ] posterior mean and sd for $R^2$
+      - [ ] posterior mean and sd for R^2
 
