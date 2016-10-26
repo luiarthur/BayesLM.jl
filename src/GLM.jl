@@ -24,15 +24,19 @@ function post_summary(out::Array{State_lm,1}; alpha=.05)
     zeroInCI[p] = q[1] <= 0 <= q[2] ? "" : "*"
   end
 
-  println("Coefficients:\tmean\tstd\t≠0")
+  println("\tmean\tstd\t≠0")
   for k in 1:P
-    @printf "\t\t%.4f\t%.4f\t%s\n" mean_beta[k] std_beta[k] zeroInCI[k]
+    @printf "%s\t%.4f\t%.4f\t%s\n" string("β",k-1) mean_beta[k] std_beta[k] zeroInCI[k]
   end
 
   post_sig = map(o -> sqrt(o.sig2), out)
-  @printf "σ: %.4f ± %.4f\n"  mean(post_sig)  std(post_sig)
+  @printf "%s\t%.4f\t%.4f\n" "σ" mean(post_sig) std(post_sig)
 
   # print out DIC
+end
+
+function lm(y::Vector, X::Vector; B::Int=10000, burn::Int=10, addIntercept::Bool=true)
+  lm(y, reshape(X,size(X,1),1), B=B, burn=burn, addIntercept=addIntercept)
 end
 
 function lm(y::Vector, X::Matrix; B::Int=10000, burn::Int=10, addIntercept::Bool=true)
@@ -67,7 +71,7 @@ end # GLM
 include("GLM.jl")
 using GLM, RCall
 n = 100
-X = randn(n,1)
+X = randn(n)
 b = [0,3]
 y = [ones(n) X] * b + randn(n)
 model = lm(y,X);
