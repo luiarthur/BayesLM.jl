@@ -25,12 +25,12 @@ function show(io::IO, SL::Summary_lm)
   const P = length(SL.mean_beta)
   zeroInCI = [SL.quantile_beta[2,p] <= 0 <= SL.quantile_beta[6,p] ? "" : "*" for p in 1:P]
 
-  println("\tmean\tstd\t0∉ 95%CI")
+  @printf "%5s%10s%10s%3s\n" "" "mean" "std" "≠0"
   for k in 1:P
-    @printf "%s\t%.4f\t%.4f\t%s\n" string("β",k-1) SL.mean_beta[k] SL.std_beta[k] zeroInCI[k]
+    @printf "%5s%10.4f%10.4f%3s\n" string("β",k-1) SL.mean_beta[k] SL.std_beta[k] zeroInCI[k]
   end
-  @printf "%s\t%.4f\t%.4f\n" "σ" SL.mean_sig SL.std_sig
-  @printf "DIC: %.2f\n" SL.DIC
+  @printf "%5s%10.4f%10.4f\n" "σ" SL.mean_sig SL.std_sig
+  @printf "%5s%10.2f\n" "DIC" SL.DIC
 end
 
 function dic{T <: VM}(post_samples::Array{State_lm,1}, y::Vector, X::T; 
