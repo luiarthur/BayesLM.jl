@@ -1,6 +1,6 @@
-# LM
+# Linear Models
 
-My Bayesian implementations of typical stats functions from R, written in julia.
+My Bayesian implementations of typical linear models functions from R, written in julia.
 
 ## To Do
 
