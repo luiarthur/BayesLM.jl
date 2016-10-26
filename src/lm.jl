@@ -97,14 +97,11 @@ end
 
 
 #=
-using LinearModels, RCall
+using BayesLM
 n = 100
 X = randn(n)
 b = [0,3]
 y = [ones(n) X] * b + randn(n)
 @time model = lm(y,X);
 post_summary(model,alpha=.05)
-
-@rput y X;
-R"summary(lm(y~X))"
 =#
