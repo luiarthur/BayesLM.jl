@@ -1,13 +1,15 @@
 __precompile__()
-module LinearModels
+module BayesLM
 
 import Base.show
+import Base.summary
+
 using Distributions
 
-export lm, post_summary, dic, show
+export lm, summary, dic, show
 
 include("MCMC.jl")
 include("common.jl")
 include("lm.jl")
 
-end # module LinearModels
+end # module BayesLM

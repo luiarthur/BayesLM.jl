@@ -1,7 +1,6 @@
 println("Loading Packges for Linear Models test...")
-using LinearModels
+using BayesLM
 using Base.Test
-using RCall
 println("Starting Tests for Linear Models test...")
 
 @testset "lm" begin
@@ -12,16 +11,16 @@ println("Starting Tests for Linear Models test...")
   y = [ones(n) X] * b + randn(n)
 
   @time model = lm(y,X);
-  println()
 
+  #= private tests
+  using RCall
   @rput y X n;
-  R"mod <- lm(y~X)"
-  R"co_R <- coef(mod)"
-  R"sig2_R <- sd(mod$residuals) *sqrt( (n-1)/(n-2) )"
-  #println(R"summary(mod)")
-  @rget co_R sig2_R;
-  post_sum = post_summary(model,alpha=.05)
-  @test all(abs(co_R - post_sum.mean_beta) .< .01)
-  @test abs(sig2_R - post_sum.mean_sig) < .05
+  R"summary(lm(y~X))"
+  =#
+
+  post_sum = summary(model,alpha=.05)
+  println(post_sum)
+  @test all(abs(b - post_sum.mean_beta) .< .2)
+  @test abs(1 - post_sum.mean_sig) < .1
 end
 

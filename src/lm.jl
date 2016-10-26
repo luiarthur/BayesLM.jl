@@ -47,7 +47,7 @@ function dic{T <: VM}(post_samples::Array{State_lm,1}, y::Vector, X::T;
   dic(post_samples,loglike)
 end
 
-function post_summary(out::LM; alpha=.05)
+function summary(out::LM; alpha=.05)
   const post_beta= hcat(map(o -> o.b, out.post_samps)...)'
   const (B,P) = size(post_beta)
   const mean_beta = vec(mean(post_beta,1))
@@ -62,7 +62,6 @@ function post_summary(out::LM; alpha=.05)
                       mean_sig,std_sig,quantile_sig,
                       out.DIC,B)
   
-  println(sum_lm)
   return sum_lm
 end
 
