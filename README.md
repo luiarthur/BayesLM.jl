@@ -1,4 +1,4 @@
-# Linear Models
+# Linear Models [![Build Status](https://travis-ci.org/luiarthur/LinearModels.jl.svg?branch=master)](https://travis-ci.org/luiarthur/LinearModels.jl)
 
 My Bayesian implementations of typical linear models functions from R, written in julia.
 
