@@ -4,7 +4,7 @@ My Bayesian implementations of typical linear models functions from R, written i
 
 ## To Do
 
-- [ ] lm
+- [x] lm
 - [ ] glm
       - Sampling Distributions
       - [ ] binomial	(link = logit)
