@@ -1,4 +1,4 @@
-# BayesLM
+# BayesLM [![Build Status](https://travis-ci.org/luiarthur/BayesLM.jl.svg?branch=master)](https://travis-ci.org/luiarthur/BayesLM.jl)
 
 My Bayesian implementations of typical linear models functions from R, written in julia.
 
