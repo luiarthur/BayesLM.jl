@@ -9,6 +9,6 @@ end
 
 function cpo{T}(post_params::T, f, X::Matrix{Float64}) # f = pdf
   const N = size(X,1)
-  const B = length(post_params)
-  1 ./ mean([ 1 / f(post_params[b], X[i,:]) for i in 1:N, b in 1:B ], 2)
+  const J = length(post_params)
+  return 1 ./ mean([ 1 / f(post_params[b], X[i,:]) for i in 1:N, b in 1:B ], 2)
 end

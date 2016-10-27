@@ -50,11 +50,21 @@ end
 
 
 function cpo(model::LM, X::Matrix{Float64})
+  #=
   const I = eye( size(X,1) )
-
   M = hcat(map(p -> 
                rand( MultivariateNormal(X*p.b, p.sig2*I)), model.post_params)...)
-  1 ./ mean(1./M, 2)
+  println(size(M))
+  return 1 ./ mean(1./M, 2)
+  =#
+
+  # same answer, but way faster
+  const b = hcat(map(p -> p.b, model.post_params)...)
+  const sig2 = map(p -> p.sig2, model.post_params)
+  const Xb = X * b
+  const (N,J) = size(Xb)
+  const iCPO = broadcast(*, sqrt(sig2)', randn(N,J)) + Xb
+  return 1 ./ mean(1 ./ iCPO, 2)
 end
 
 
