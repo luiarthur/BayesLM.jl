@@ -1,4 +1,4 @@
-VM = Union{Vector,Matrix}
+VM = Union{Vector{Float64},Matrix{Float64}}
 
 immutable State_lm
   b::Vector
@@ -6,7 +6,7 @@ immutable State_lm
 end
 
 immutable LM
-  post_samps::Array{State_lm,1}
+  post_params::Vector{State_lm}
   DIC::Float64
 end
 
@@ -33,7 +33,8 @@ function show(io::IO, SL::Summary_lm)
   @printf "%5s%10.2f\n" "DIC" SL.DIC
 end
 
-function dic{T <: VM}(post_samples::Array{State_lm,1}, y::Vector, X::T; 
+
+function dic{T <: VM}(post_samples::Vector{State_lm}, y::Vector{Float64}, X::T; 
                       addIntercept=true)
   if addIntercept
     X = [ones(size(X,1)) X]
@@ -47,25 +48,30 @@ function dic{T <: VM}(post_samples::Array{State_lm,1}, y::Vector, X::T;
   dic(post_samples,loglike)
 end
 
+
+function cpo(model::LM, X::Matrix{Float64})
+  f(p::State_lm, x::Vector{Float64}) = rand(Normal((x'p.b)[1], sqrt(p.sig2)))
+  cpo(model.post_params, f, X)
+end
+
+
 function summary(out::LM; alpha=.05)
-  const post_beta= hcat(map(o -> o.b, out.post_samps)...)'
+  const post_beta= hcat(map(o -> o.b, out.post_params)...)'
   const (B,P) = size(post_beta)
   const mean_beta = vec(mean(post_beta,1))
   const std_beta = vec(std(post_beta,1))
   const quantile_beta = hcat([ quantile(post_beta[:,p], quants) for p in 1:P]...)
-  const post_sig = map(o -> sqrt(o.sig2), out.post_samps)
+  const post_sig = map(o -> sqrt(o.sig2), out.post_params)
   const mean_sig = mean(post_sig)
   const std_sig = std(post_sig)
   const quantile_sig = quantile(post_sig, quants)
 
-  sum_lm = Summary_lm(mean_beta,std_beta,quantile_beta,
-                      mean_sig,std_sig,quantile_sig,
-                      out.DIC,B)
-  
-  return sum_lm
+  return Summary_lm(mean_beta,std_beta,quantile_beta,
+                    mean_sig,std_sig,quantile_sig,
+                    out.DIC,B)
 end
 
-function lm{T <: VM}(y::Vector, X::T; B::Int=10000, burn::Int=10, 
+function lm{T <: VM}(y::Vector{Float64}, X::T; B::Int=10000, burn::Int=10, 
                      addIntercept::Bool=true)
   if addIntercept
     X = [ones(size(X,1)) X]
@@ -84,11 +90,13 @@ function lm{T <: VM}(y::Vector, X::T; B::Int=10000, burn::Int=10,
     State_lm(b_new,s2_new)
   end
 
-  const post_samps = MCMC.gibbs(State_lm(beta_init,s2_init), update, B, burn)
-  const DIC = dic(post_samps,y,X,addIntercept=false)
+  const post_params = MCMC.gibbs(State_lm(beta_init,s2_init), update, B, burn)
+  const DIC = dic(post_params, y, X, addIntercept=false)
 
-  LM(post_samps,DIC)
+  LM(post_params,DIC)
 end
+
+
 
 #= For general covariance matrix
 function lm(y:: Vector, X::Matrix, V::Matrix)
@@ -103,5 +111,8 @@ X = randn(n)
 b = [0,3]
 y = [ones(n) X] * b + randn(n)
 @time model = lm(y,X);
-post_summary(model,alpha=.05)
+summary(model)
+
+using Distributions
+@time cpo(model.post_params, cpo_f, [ones(n) X])
 =#
