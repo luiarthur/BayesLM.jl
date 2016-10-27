@@ -50,8 +50,11 @@ end
 
 
 function cpo(model::LM, X::Matrix{Float64})
-  f(p::State_lm, x::Vector{Float64}) = rand(Normal((x'p.b)[1], sqrt(p.sig2)))
-  cpo(model.post_params, f, X)
+  const I = eye( size(X,1) )
+
+  M = hcat(map(p -> 
+               rand( MultivariateNormal(X*p.b, p.sig2*I)), model.post_params)...)
+  1 ./ mean(1./M, 2)
 end
 
 
@@ -82,7 +85,6 @@ function lm{T <: VM}(y::Vector{Float64}, X::T; B::Int=10000, burn::Int=10,
   const BETA_HAT = XXi * X'y # FIXME: use QR to do this instead?
   const beta_init = fill(0.0,K)
   const s2_init = 1.0
-
 
   function update(state::State_lm)
     const s2_new = rig(a, sum((y-X*state.b).^2)/2)
