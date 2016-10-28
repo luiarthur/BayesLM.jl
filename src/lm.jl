@@ -49,22 +49,13 @@ function dic{T <: VM}(post_samples::Vector{State_lm}, y::Vector{Float64}, X::T;
 end
 
 
-function cpo(model::LM, X::Matrix{Float64})
-  #=
-  const I = eye( size(X,1) )
-  M = hcat(map(p -> 
-               rand( MultivariateNormal(X*p.b, p.sig2*I)), model.post_params)...)
-  println(size(M))
-  return 1 ./ mean(1./M, 2)
-  =#
-
-  # same answer, but way faster
-  const b = hcat(map(p -> p.b, model.post_params)...)
-  const sig2 = map(p -> p.sig2, model.post_params)
-  const Xb = X * b
-  const (N,J) = size(Xb)
-  const iCPO = broadcast(*, sqrt(sig2)', randn(N,J)) + Xb
-  return 1 ./ mean(1 ./ iCPO, 2)
+function cpo(model::LM, y::Vector{Float64}, X::Matrix{Float64})
+  function den(p::State_lm, yi::Float64, xi::Vector{Float64}) 
+    xb = xi'p.b
+    assert(length(xb) == 1)
+    return pdf(Normal(xb[1], sqrt(p.sig2)), yi)
+  end
+  cpo(model.post_params, den, y, X)
 end
 
 
