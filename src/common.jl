@@ -13,7 +13,7 @@ cpo = conditional posterior ordinate.
       actual observed y's. used for *comparing* models. Not
       for prediction.
 """
-function cpo{T}(post_params::T, den, 
+function cpo{T}(post_params::Vector{T}, den, 
                 y::Vector{Float64}, 
                 X::Matrix{Float64})
 

@@ -34,10 +34,11 @@ function show(io::IO, SL::Summary_lm)
 end
 
 
-function dic{T <: VM}(post_samples::Vector{State_lm}, y::Vector{Float64}, X::T; 
+function dic{T <: VM}(post_samples::Vector{State_lm}, 
+                      y::Vector{Float64}, X::T; 
                       addIntercept=true)
   if addIntercept
-    X = [ones(size(X,1)) X]
+    X::Matrix{Float64} = [ones(size(X,1)) X]
   end
   const (N,P) = size(X)
 
@@ -53,13 +54,15 @@ function cpo(model::LM, y::Vector{Float64}, X::Matrix{Float64})
   function den(p::State_lm, yi::Float64, xi::Vector{Float64}) 
     xb = xi'p.b
     assert(length(xb) == 1)
-    return pdf(Normal(xb[1], sqrt(p.sig2)), yi)
+    # Declaring the types really speeds things up here
+    return pdf(Normal(xb[1]::Float64, sqrt(p.sig2)::Float64), 
+               yi::Float64)
   end
   cpo(model.post_params, den, y, X)
 end
 
 
-function summary(out::LM; alpha=.05)
+function summary(out::LM; alpha::Float64=.05)
   const post_beta= hcat(map(o -> o.b, out.post_params)...)'
   const (B,P) = size(post_beta)
   const mean_beta = vec(mean(post_beta,1))
@@ -83,13 +86,15 @@ function lm{T <: VM}(y::Vector{Float64}, X::T; B::Int=10000, burn::Int=10,
   const (N,K) = size(X)
   const XXi = inv(X'X)
   const a = (N-K) / 2
-  const BETA_HAT = XXi * X'y # FIXME: use QR to do this instead?
+  const BETA_HAT = XXi * X'y # use QR to do this instead?
   const beta_init = fill(0.0,K)
   const s2_init = 1.0
 
   function update(state::State_lm)
     const s2_new = rig(a, sum((y-X*state.b).^2)/2)
-    const b_new = rand(MultivariateNormal(BETA_HAT,s2_new*XXi))
+    const b_new = 
+      rand(MultivariateNormal(BETA_HAT::Vector{Float64},
+                              s2_new*XXi::Matrix{Float64}))
     State_lm(b_new,s2_new)
   end
 
