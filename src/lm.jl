@@ -1,7 +1,7 @@
 VM = Union{Vector{Float64},Matrix{Float64}}
 
 immutable State_lm
-  b::Vector
+  b::Vector{Float64}
   sig2::Float64
 end
 
