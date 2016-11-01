@@ -15,30 +15,29 @@ println("Starting Tests for BayesLM test...")
 
   #= private tests
   using RCall
-  @rput y X n;
-  R"summary(lm(y~X))"
+  @rput y X n b sig;
+  R"summary(mod <- lm(y~X))"
+  R"plot(X,y)"
   =#
 
   post_sum = summary(model,alpha=.05)
   println(post_sum)
   @test all(abs(b - post_sum.mean_beta) .< .2)
   @test abs(sig - post_sum.mean_sig) < .1
-  @time CPO = cpo(model,[ones(n) X])
-
-  println("RMSE(y,CPO): ", StatsBase.rmsd(y,CPO))
-
-  #=
-  for i in 1:n
-    @printf "%8.4f%8.4f\n" y[i] CPO[i]
-  end
-  =#
+  @time CPO = cpo(model,y,[ones(n) X])
 
   #= visual tests
   @rput CPO
-  R"plot(X,y,col='grey',pch=20,cex=2)"
-  R"points(X,CPO,col='dodgerblue',cex=2,pch=20)"
-  R"abline(0,3)"
-  R"plot(y,CPO,xlim=range(CPO),ylim=range(CPO))"
-  R"abline(0,1)"
+  R"plot(y,dnorm(y,cbind(1,X)%*%mod$coef,sig))"
+  R"points(y,CPO,col='blue',cex=2)"
+
+  # If I had CPO's from 2 different models, use this visual
+  R"CPO2 <- dnorm(y,cbind(1,X)%*%b,sig) # this is not really a CPO, but will be used for demo";
+  R"plot(y,CPO-CPO2,bty='n',fg='grey',
+         main='CPO_M1 - CPO_M2',ylab='',xlab='Observed y')"
+  R"abline(h=0,col='red')"
+
+  # Note that since most of the points lie below 0,
+  # M1 may be poorer than M2.
   =#
 end

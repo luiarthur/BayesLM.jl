@@ -7,8 +7,25 @@ function dic{T}(post_samples::Vector{T},loglikelihood)
   return mean(D) + var(D) / 2
 end
 
-function cpo{T}(post_params::T, f, X::Matrix{Float64}) # f = pdf
+"""
+cpo = conditional posterior ordinate. 
+      which is the leave-one-out density evaluated at the
+      actual observed y's. used for *comparing* models. Not
+      for prediction.
+"""
+function cpo{T}(post_params::Vector{T}, den, 
+                y::Vector{Float64}, 
+                X::Matrix{Float64})
+
   const N = size(X,1)
   const J = length(post_params)
-  return 1 ./ mean([ 1 / f(post_params[b], X[i,:]) for i in 1:N, b in 1:B ], 2)
+  const CPO = Matrix{Float64}(N,J)
+
+  for i in 1:N
+    for j in 1:J
+      CPO[i,j] = 1 / den(post_params[j], y[i], X[i,:])
+    end
+  end
+  
+  return 1 ./ mean(CPO,2)
 end
