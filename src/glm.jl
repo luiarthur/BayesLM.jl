@@ -1,14 +1,15 @@
 # glm.jl
 
-abstract Hyper
+typealias Hyper Dict{Symbol,Float64}
 
-immutable Param_GLM{T <: Hyper} # univariate
+immutable Param_GLM
   β::Vector{Float64}
-  θ::T # Should all be univariate FIXME: Change to Dict?
+  θ::Hyper
 end
 
-function θ_vec{T <: Hyper}(θ::T)
-  [getfield(θ,fn) for fn in fieldnames(θ)]
+function θ_vec(θ::Hyper)
+  #[getfield(θ,fn) for fn in fieldnames(θ)]
+  
 end
 
 ### FIXME
