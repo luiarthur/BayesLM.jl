@@ -52,13 +52,13 @@ println()
   σ² = 2
   y = X*b + randn(N)*sqrt(σ²)
 
-  function logf(y::Vector{Float64}, mu::Vector{Float64}, θ::Hyper)
+  function loglike(y::Vector{Float64}, mu::Vector{Float64}, θ::Hyper)
     -N/2 * log(2*pi*θ[:σ²]) - sum((y-mu).^2) / (2*θ[:σ²])
   end
 
   lp_θ(θ::Hyper) = (-2-1) * log(θ[:σ²]) - 1 / θ[:σ²]
 
-  @time model = glm(y, X, eye(Float64,4)*.03, logf, 
+  @time model = glm(y, X, eye(Float64,4)*.03, loglike, 
                     Σ_θ=eye(Float64,1)*.1, 
                     θ_bounds=[0. Inf], 
                     θ_names=[:σ²], 
@@ -80,12 +80,12 @@ println()
   invlogit(xb::Float64) = 1 / (1 + exp(-xb))
   y = map(xb -> rand(Bernoulli(invlogit(xb)))*1.0, X*b)
 
-  function logf(y::Vector{Float64}, Xb::Vector{Float64}, θ::Hyper)
+  function loglike(y::Vector{Float64}, Xb::Vector{Float64}, θ::Hyper)
     const mu = invlogit.(Xb)
     sum([ logpdf(Bernoulli(mu[i]),y[i]) for i in 1:N ])
   end
 
-  @time model = glm(y, X, eye(J)*1E-2, logf, B=2000,burn=10000);
+  @time model = glm(y, X, eye(J)*1E-2, loglike, B=2000,burn=10000);
   println(summary(model))
   #=
   using RCall

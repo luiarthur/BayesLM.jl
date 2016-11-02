@@ -29,12 +29,12 @@ end
 
 """
 invlink(xi'β) should be the mean of distribution F
-logf(y::Vector{Float64}, Xb::Vector{Float64}, θ::Hyper) should return the logden
+loglike(y::Vector{Float64}, Xb::Vector{Float64}, θ::Hyper) should return the loglikelihood
 """
 
 lp_θ_default(θ::Hyper) = 0.0
 function glm(y::Vector{Float64}, X::Matrix{Float64}, # include your own intercept!
-             Σ_β::Matrix{Float64}, logf; 
+             Σ_β::Matrix{Float64}, loglike; 
              Σ_θ::Matrix{Float64}=eye(1)*1., 
              θ_bounds::Matrix{Float64}=[0. Inf],
              θ_names::Vector{Symbol}=[:empty], 
@@ -48,10 +48,10 @@ function glm(y::Vector{Float64}, X::Matrix{Float64}, # include your own intercep
   const θ_upper = θ_bounds[:,2]
 
   β_logprior(β::Vector{Float64}) = 0
-  logprior(β::Vector{Float64}, θ::Hyper) = β_logprior(β) + θ_logprior(θ)
-  loglike(β::Vector{Float64}, θ::Hyper) = sum(logf(y, X*β, θ))
+  lp(β::Vector{Float64}, θ::Hyper) = β_logprior(β) + θ_logprior(θ)
+  ll(β::Vector{Float64}, θ::Hyper) = loglike(y, X*β, θ)
   
-  ll_plus_lp(β::Vector{Float64}, θ::Hyper) = loglike(β, θ) + logprior(β, θ)
+  ll_plus_lp(β::Vector{Float64}, θ::Hyper) = ll(β, θ) + lp(β, θ)
 
   function update(p::Param_GLM)
     # Update Coefficients (β)
