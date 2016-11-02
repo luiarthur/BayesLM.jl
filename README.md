@@ -71,7 +71,7 @@ end
 
 @time model = glm(y, X, eye(J)*1E-2, loglike, B=2000,burn=10000);
 
-summary(logistic_mod)
+summary(model)
 #=
            mean       std  CI_lower  CI_upper
    β0    0.3663    0.0726    0.2309    0.5118  *
