@@ -41,3 +41,30 @@ println("Starting Tests for BayesLM test...")
   # M1 may be poorer than M2.
   =#
 end
+
+@testset "glm" begin
+  srand(1);
+  N = 100
+  b = [2,3,4,5.]
+  X = [ones(N) randn(N,length(b)-1)]
+  y = X*b + randn(N)
+
+  function logf(y::Vector{Float64}, mu::Vector{Float64}, θ::Hyper)
+    -N/2 * log(2*pi*θ[:sig2]) - sum((y-mu).^2) / (2*θ[:sig2])
+  end
+
+  lp_θ(θ::Hyper) = -log(θ[:sig2])
+
+  @time model = glm(y, X, eye(Float64,4)*.01, eye(Float64,1)*.1, [0. Inf],
+                    [:sig2], identity, logf, lp_θ)
+
+  b = hcat(map(m->m.β,model)...)'
+  s = map(m->m.θ[:sig2],model)
+
+  println()
+  println("acc_β:",size(unique(b,1),1)/length(model))
+  println("acc_σ²:",length(unique(s))/length(model))
+  println(mean(b,1))
+  println(mean(s))
+  println()
+end

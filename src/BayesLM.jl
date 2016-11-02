@@ -6,7 +6,7 @@ import Base.summary
 
 using Distributions
 
-export lm, summary, dic, show, cpo
+export lm, summary, dic, show, cpo, Hyper, glm
 
 include("MCMC.jl")
 include("common.jl")
