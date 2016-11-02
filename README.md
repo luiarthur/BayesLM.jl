@@ -32,6 +32,7 @@ My Bayesian implementations of typical linear models functions from R, written i
 
 ### Linear Regression (LM)
 ```julia
+using BayesLM, Distributions
 srand(1);
 n = 100
 X = randn(n)
@@ -54,20 +55,21 @@ summary(model)
 ### Logistic Regression (GLM)
 ```julia
 using BayesLM, Distributions
-
-b = [-.5, .5, 1.6, 0]
-N = 500
+srand(1);
+N = 1000
+b = [.2, .4, .6, .8]
 J = length(b)
-X = randn(N,J)
+X = [ones(N) randn(N,length(b)-1)]
+
 invlogit(xb::Float64) = 1 / (1 + exp(-xb))
-y = map(xb -> rand(Bernoulli(invlogit(xb))), X*b) * 1.
+y = map(xb -> rand(Bernoulli(invlogit(xb)))*1.0, X*b)
 
 function loglike(y::Vector{Float64}, Xb::Vector{Float64}, θ::Hyper)
-  const p = invlogit.(Xb)
-  sum([ logpdf(Bernoulli(p[i]),y[i]) for i in 1:length(y) ])
+  const mu = invlogit.(Xb)
+  sum([ logpdf(Bernoulli(mu[i]),y[i]) for i in 1:N ])
 end
 
-@time logistic_mod = glm(y, X, eye(J)*.1, loglike, B=2000, burn=10000);
+@time model = glm(y, X, eye(J)*1E-2, loglike, B=2000,burn=10000);
 
 summary(logistic_mod)
 #=
@@ -83,6 +85,7 @@ summary(logistic_mod)
 
 ### Linear Regression with Normal Likelihood (GLM)
 ```julia
+using BayesLM, Distributions
 srand(1);
 N = 100
 b = [2,3,4,5.]
