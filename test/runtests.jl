@@ -47,24 +47,40 @@ end
   N = 100
   b = [2,3,4,5.]
   X = [ones(N) randn(N,length(b)-1)]
-  y = X*b + randn(N)
+  σ² = 2
+  y = X*b + randn(N)*sqrt(σ²)
 
   function logf(y::Vector{Float64}, mu::Vector{Float64}, θ::Hyper)
-    -N/2 * log(2*pi*θ[:sig2]) - sum((y-mu).^2) / (2*θ[:sig2])
+    -N/2 * log(2*pi*θ[:σ²]) - sum((y-mu).^2) / (2*θ[:σ²])
   end
 
-  lp_θ(θ::Hyper) = -log(θ[:sig2])
+  lp_θ(θ::Hyper) = (-2-1) * log(θ[:σ²]) - 1 / θ[:σ²]
 
-  @time model = glm(y, X, eye(Float64,4)*.01, eye(Float64,1)*.1, [0. Inf],
-                    [:sig2], identity, logf, lp_θ)
+  @time model = glm(y, X, eye(Float64,4)*.03, eye(Float64,1)*.1, [0. Inf],
+                    [:σ²], identity, logf, lp_θ);
 
-  b = hcat(map(m->m.β,model)...)'
-  s = map(m->m.θ[:sig2],model)
+  print(summary(model))
+end
 
-  println()
-  println("acc_β:",size(unique(b,1),1)/length(model))
-  println("acc_σ²:",length(unique(s))/length(model))
-  println(mean(b,1))
-  println(mean(s))
-  println()
+@testset "glm logistic" begin
+  using Distributions
+  srand(1);
+  N = 100
+  b = [.2,.3,.4,.5]
+  X = [ones(N) randn(N,length(b)-1)]
+
+  invlogit(xb::Float64) = 1 / (1 + exp(-xb))
+  y = map(xb -> rand(Bernoulli(invlogit(xb)))*1.0, X*b)
+
+  function logf(y::Vector{Float64}, Xb::Vector{Float64}, θ::Hyper)
+    const mu = invlogit.(Xb)
+    sum([ logpdf(Bernoulli(mu[i]),y[i]) for i in 1:N ])
+  end
+
+  lp_θ(θ::Hyper) = 0.0
+
+  @time model = glm(y, X, eye(Float64,4)*1E-3, eye(Float64,1), [0. Inf],
+                    [:empty], invlogit, logf, lp_θ);
+
+  print(summary(model))
 end
