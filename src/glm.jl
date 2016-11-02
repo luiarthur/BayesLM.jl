@@ -29,12 +29,16 @@ end
 
 """
 invlink(xi'β) should be the mean of distribution F
-logf(y::Vector{Float64}, mean::Vector{Float64}, θ::Hyper) should return the logden
+logf(y::Vector{Float64}, Xb::Vector{Float64}, θ::Hyper) should return the logden
 """
 
+lp_θ_default(θ::Hyper) = 0.0
 function glm(y::Vector{Float64}, X::Matrix{Float64}, # include your own intercept!
-             Σ_β::Matrix{Float64}, Σ_θ:: Matrix{Float64}, θ_bounds::Matrix{Float64},
-             θ_names::Vector{Symbol}, invlink, logf, θ_logprior;
+             Σ_β::Matrix{Float64}, logf; 
+             Σ_θ::Matrix{Float64}=eye(1)*1., 
+             θ_bounds::Matrix{Float64}=[0. Inf],
+             θ_names::Vector{Symbol}=[:empty], 
+             θ_logprior=lp_θ_default,
              B::Int=10000, burn::Int=1000)
 
   assert(size(θ_bounds,2) == 2)
@@ -45,7 +49,7 @@ function glm(y::Vector{Float64}, X::Matrix{Float64}, # include your own intercep
 
   β_logprior(β::Vector{Float64}) = 0
   logprior(β::Vector{Float64}, θ::Hyper) = β_logprior(β) + θ_logprior(θ)
-  loglike(β::Vector{Float64}, θ::Hyper) = sum(logf(y, invlink.(X*β), θ))
+  loglike(β::Vector{Float64}, θ::Hyper) = sum(logf(y, X*β, θ))
   
   ll_plus_lp(β::Vector{Float64}, θ::Hyper) = loglike(β, θ) + logprior(β, θ)
 
@@ -134,8 +138,12 @@ function show(io::IO, hyper::Vector{Hyper})
 end
 
 function show(io::IO, sglm::Summary_glm)
+  const empty = collect(keys(sglm.hyper[1]))[1] == :empty
+
   show(io, sglm.coef)
-  show(io, sglm.hyper)
+  if !empty
+    show(io, sglm.hyper)
+  end
 
   k = collect(keys(sglm.hyper[1]))[1]
   some_hyper = map(h -> h[k], sglm.hyper)
@@ -144,7 +152,9 @@ function show(io::IO, sglm::Summary_glm)
   println()
 
   @printf "%5s%10.4f\n" "accβ" sglm.coef.acc
-  @printf "%5s%10.4f\n" "accθ" acc_hyper
+  if !empty
+    @printf "%5s%10.4f\n" "accθ" acc_hyper
+  end
 end
 
 #function dic(g::GLM)

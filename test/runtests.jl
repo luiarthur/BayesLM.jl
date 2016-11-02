@@ -42,6 +42,8 @@ println("Starting Tests for BayesLM test...")
   =#
 end
 
+println()
+
 @testset "glm" begin
   srand(1);
   N = 100
@@ -56,17 +58,23 @@ end
 
   lp_θ(θ::Hyper) = (-2-1) * log(θ[:σ²]) - 1 / θ[:σ²]
 
-  @time model = glm(y, X, eye(Float64,4)*.03, eye(Float64,1)*.1, [0. Inf],
-                    [:σ²], identity, logf, lp_θ);
+  @time model = glm(y, X, eye(Float64,4)*.03, logf, 
+                    Σ_θ=eye(Float64,1)*.1, 
+                    θ_bounds=[0. Inf], 
+                    θ_names=[:σ²], 
+                    θ_logprior=lp_θ);
 
   print(summary(model))
 end
 
+println()
+
 @testset "glm logistic" begin
   using Distributions
   srand(1);
-  N = 100
-  b = [.2,.3,.4,.5]
+  N = 1000
+  b = [.2, .4, .6, .8]
+  J = length(b)
   X = [ones(N) randn(N,length(b)-1)]
 
   invlogit(xb::Float64) = 1 / (1 + exp(-xb))
@@ -77,10 +85,11 @@ end
     sum([ logpdf(Bernoulli(mu[i]),y[i]) for i in 1:N ])
   end
 
-  lp_θ(θ::Hyper) = 0.0
-
-  @time model = glm(y, X, eye(Float64,4)*1E-3, eye(Float64,1), [0. Inf],
-                    [:empty], invlogit, logf, lp_θ);
-
-  print(summary(model))
+  @time model = glm(y, X, eye(J)*1E-2, logf, B=2000,burn=10000);
+  println(summary(model))
+  #=
+  using RCall
+  @rput y X
+  println(R"glm(y~X-1,family='binomial')")
+  =#
 end
