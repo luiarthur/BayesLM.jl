@@ -33,8 +33,10 @@ loglike(y::Vector{Float64}, Xb::Vector{Float64}, θ::Hyper) should return the lo
 """
 
 lp_θ_default(θ::Hyper) = 0.0
+β_logprior_default(β::Vector{Float64}) = 0.0
 function glm(y::Vector{Float64}, X::Matrix{Float64}, # include your own intercept!
              Σ_β::Matrix{Float64}, loglike; 
+             β_logprior = β_logprior_default,
              Σ_θ::Matrix{Float64}=eye(1)*1., 
              θ_bounds::Matrix{Float64}=[0. Inf],
              θ_names::Vector{Symbol}=[:empty], 
@@ -47,7 +49,6 @@ function glm(y::Vector{Float64}, X::Matrix{Float64}, # include your own intercep
   const θ_lower = θ_bounds[:,1]
   const θ_upper = θ_bounds[:,2]
 
-  β_logprior(β::Vector{Float64}) = 0
   lp(β::Vector{Float64}, θ::Hyper) = β_logprior(β) + θ_logprior(θ)
   ll(β::Vector{Float64}, θ::Hyper) = loglike(y, X*β, θ)
   
