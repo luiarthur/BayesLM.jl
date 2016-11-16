@@ -39,7 +39,7 @@ function glm(y::Vector{Float64}, X::Matrix{Float64}, # include your own intercep
              θ_bounds::Matrix{Float64}=[0. Inf],
              θ_names::Vector{Symbol}=[:empty], 
              θ_logprior=lp_θ_default,
-             B::Int=10000, burn::Int=1000)
+             B::Int=10000, burn::Int=1000; printFreq::Int=0)
 
   assert(size(θ_bounds,2) == 2)
 
@@ -84,7 +84,7 @@ function glm(y::Vector{Float64}, X::Matrix{Float64}, # include your own intercep
   const θ₀ = toθ(ones(Float64,size(Σ_θ,1)), θ_names)
   const init = Param_GLM(β₀,θ₀)
              
-  const post = MCMC.gibbs(init, update, B, burn)
+  const post = MCMC.gibbs(init, update, B, burn, printFreq=printFreq)
   return GLM(post,y,X)
 end #glm
 
