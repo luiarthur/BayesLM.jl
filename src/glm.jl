@@ -158,5 +158,37 @@ function show(io::IO, sglm::Summary_glm)
   end
 end
 
+
+function latex(sglm::Summary_glm; digits::Int=4)
+  const empty = collect(keys(sglm.hyper[1]))[1] == :empty
+  const coef = sglm.coef
+  const hyper = sglm.hyper
+
+  const P = length(coef.mean)
+  println("\\begin{center}\\begin{tabular}{crrrrc}")
+  println("& mean & sd & CI 2.5\\% & CI 97.5\\% \\\\")
+  for k in 1:P
+    @printf "%s&%10.4f&%10.4f&%10.4f&%10.4f&%3s\\\\\n" string("\$\\beta_{",k-1,"}\$") coef.mean[k] coef.std[k] coef.q[k,1] coef.q[k,2] (coef.ne0[k] ? "*" : "")
+  end
+
+  if !empty
+    for k in keys(hyper[1])
+      s = stats(map(h -> h[k], hyper))
+      @printf "%s&%10.4f&%10.4f&%10.4f&%10.4f&\\\\\n" string(k) s[1] s[2] s[3][1] s[3][2]
+    end
+  end
+
+  k = collect(keys(sglm.hyper[1]))[1]
+  some_hyper = map(h -> h[k], sglm.hyper)
+  acc_hyper = length(unique(some_hyper)) / length(some_hyper)
+
+  println("\\hline\\\\")
+  @printf "%s&%10.4f\\\\\n" "Acceptance \$\\beta\$" sglm.coef.acc
+  if !empty
+    @printf "%s&%10.4f\\\\\n" "Acceptance Hyper" acc_hyper
+  end
+  println("\\end{tabular}\\end{center}")
+end
+
 #function dic(g::GLM)
 #end
