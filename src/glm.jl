@@ -39,7 +39,7 @@ function glm(y::Vector{Float64}, X::Matrix{Float64}, # include your own intercep
              θ_bounds::Matrix{Float64}=[0. Inf],
              θ_names::Vector{Symbol}=[:empty], 
              θ_logprior=lp_θ_default,
-             B::Int=10000, burn::Int=1000; printFreq::Int=0)
+             B::Int=10000, burn::Int=1000, printFreq::Int=0)
 
   assert(size(θ_bounds,2) == 2)
 
