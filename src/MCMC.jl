@@ -62,7 +62,7 @@ function gibbs{T}(init::T, update, B::Int, burn::Int; printFreq::Int=0)
   out[1] = init
   for i in 2:(B+burn)
     out[i] = update(out[i-1])
-    if printFreq > 0 && i % div(B,printFreq) == 0
+    if printFreq > 0 && i % printFreq == 0
       print("\rProgress: ",i,"/",B+burn)
     end
   end
