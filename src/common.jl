@@ -1,3 +1,8 @@
+"""
+symmetrize matrix
+"""
+sym(M::Matrix{Float64}) = (M' + M) / 2
+
 const quants = [0., .025, .25, .5, .75, .975, 1.]
 
 rig{A <: Real, B <: Real}(a::A,b::B) = 1 / rand( Gamma(a,1/b) )
