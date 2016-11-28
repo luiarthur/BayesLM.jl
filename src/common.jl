@@ -3,6 +3,11 @@ symmetrize matrix
 """
 sym(M::Matrix{Float64}) = (M' + M) / 2
 
+# link functions:
+invLogit(xb::Float64) = 1 / (1 + exp(-xb))
+logit(p::Float64) = log(p / (1-p))
+# end of Link functions
+
 const quants = [0., .025, .25, .5, .75, .975, 1.]
 
 rig{A <: Real, B <: Real}(a::A,b::B) = 1 / rand( Gamma(a,1/b) )
