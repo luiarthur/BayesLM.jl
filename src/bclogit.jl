@@ -1,5 +1,7 @@
 """
-Baseline-category logit for Multinomial regression. Check out my notes [here](http://nbviewer.jupyter.org/github/luiarthur/GLM_AMS274/blob/master/notes/notes11.ipynb)
+    bclogit(Y::Matrix{Int}, X::Matrix{Float64}, cs::Vector{Float64}; B::Int=2000, burn::Int=10000, printFreq::Int=0)
+
+Baseline-category logit for Multinomial regression. Check out my notes at http://nbviewer.jupyter.org/github/luiarthur/GLM_AMS274/blob/master/notes/notes11.ipynb
 """
 function bclogit(Y::Matrix{Int}, X::Matrix{Float64}, cs::Vector{Float64};
              B::Int=2000, burn::Int=10000, printFreq::Int=0)
@@ -11,6 +13,7 @@ function bclogit(Y::Matrix{Int}, X::Matrix{Float64}, cs::Vector{Float64};
   const J = size(Y,2)
   const stepSize_β = [cs[j] * sym(inv(X'X)) for j in 1:J-1]
 
+  # can this computation be sped up?
   function ll(β::Matrix{Float64})
     EXB = exp(X * β)
     pi_denom = 1 + sum(EXB,2) # N by 1
@@ -35,6 +38,6 @@ function bclogit(Y::Matrix{Int}, X::Matrix{Float64}, cs::Vector{Float64};
 
   const init = zeros(K,J-1)
 
-  gibbs(init, update, B, burn, printFreq=printFreq)
+  MCMC.gibbs(init, update, B, burn, printFreq=printFreq)
 
 end
