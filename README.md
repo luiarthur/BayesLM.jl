@@ -15,6 +15,7 @@ My Bayesian implementations of typical linear models functions from R, written i
       - [ ] quasi	(link = identity, variance = constant)
       - [ ] quasi-binomial	(link = logit)
       - [ ] quasi-poisson	(link = log)
+      - [ ] add multinomial regression (BCLogit, continuous-ratio logits from GLM_AMS274)
 - [ ] anova (for model comparing and comparing means)
 - [ ] manova
 - [ ] survreg
