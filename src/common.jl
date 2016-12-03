@@ -12,6 +12,10 @@ const quants = [0., .025, .25, .5, .75, .975, 1.]
 
 rig{A <: Real, B <: Real}(a::A,b::B) = 1 / rand( Gamma(a,1/b) )
 
+function predict(X0::Matrix{Float64},β::Matrix{Float64}, inv_link)
+  inv_link.(X0 * β)
+end
+
 function dic{T}(post_samples::Vector{T},loglikelihood)
   const D = -2 * loglikelihood.(post_samples)
   return mean(D) + var(D) / 2
