@@ -2,6 +2,30 @@
 
 My Bayesian implementations of typical linear models functions from R, written in julia.
 
+# Adding Package
+```julia
+Pkg.clone("git://github.com/StefanKarpinski/FooBar.jl.git")
+```
+
+# Running Tests (Julia v0.6.0)
+
+> Run the package's tests and make sure they pass. There are several ways to run
+> the tests:
+> 
+> From Julia, run Pkg.test("Foo"): this will run your tests in a separate (new)
+> julia process.
+> 
+> From Julia, include("runtests.jl") from the package's test/ folder (it's
+> possible the file has a different name, look for one that runs all the tests):
+> this allows you to run the tests repeatedly in the same session without
+> reloading all the package code; for packages that take a while to load, this
+> can be much faster. With this approach, you do have to do some extra work to
+> make changes in the package code.
+> 
+> From the shell, run julia ../test/runtests.jl from within the package's src/
+> folder.
+
+
 ## To Do
 
 - [x] lm
